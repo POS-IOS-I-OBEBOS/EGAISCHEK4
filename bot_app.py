@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import asyncio
 import importlib
+import importlib.util
 import logging
 import threading
 from dataclasses import dataclass
@@ -40,6 +41,10 @@ def _resolve_recognize_api() -> type:
         "aspose_barcode_cloud.apis.recognize_api",
     )
     for module_name in module_candidates:
+        if importlib.util.find_spec(module_name) is None:
+            continue
+
+        module = importlib.import_module(module_name)
         try:
             module = importlib.import_module(module_name)
         except ModuleNotFoundError as exc:
