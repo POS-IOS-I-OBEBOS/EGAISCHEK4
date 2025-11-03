@@ -1,0 +1,4 @@
+aspose-barcode-cloud==25.10.0
+python-telegram-bot==20.8
+pillow==10.4.0
+pyinstaller==6.10.0
