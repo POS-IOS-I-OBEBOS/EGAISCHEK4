@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import asyncio
-import io
 import logging
 import threading
 from dataclasses import dataclass
@@ -11,10 +10,11 @@ from typing import Dict, List, Optional
 import tkinter as tk
 from tkinter import messagebox, scrolledtext, ttk
 
+from aspose_barcode_cloud.api.recognize_api import RecognizeApi  # type: ignore
 from aspose_barcode_cloud.apis.barcode_api import BarcodeApi  # type: ignore
 from aspose_barcode_cloud.api_client import ApiClient  # type: ignore
 from aspose_barcode_cloud.configuration import Configuration  # type: ignore
-from aspose_barcode_cloud.models.requests import DecodeBarcodeOnlineRequest  # type: ignore
+from aspose_barcode_cloud.models.decode_barcode_type import DecodeBarcodeType  # type: ignore
 from aspose_barcode_cloud.rest import ApiException  # type: ignore
 from telegram import Update
 from telegram.constants import ChatAction
@@ -55,22 +55,22 @@ class AsposeDecoder:
     def __init__(self, client_id: str, client_secret: str) -> None:
         configuration = Configuration(client_id=client_id, client_secret=client_secret)
         api_client = ApiClient(configuration=configuration)
-        self._api = BarcodeApi(api_client)
+        self._api = RecognizeApi(api_client)
 
     def decode_datamatrix(self, image_bytes: bytes) -> List[Dict[str, Optional[str]]]:
         """Decode DataMatrix barcodes in the provided image data."""
-        stream = io.BytesIO(image_bytes)
-        stream.seek(0)
-        request = DecodeBarcodeOnlineRequest(file=stream, type="DataMatrix")
-        response = self._api.decode_barcode_online(request)
+        response = self._api.recognize_multipart(
+            barcode_type=DecodeBarcodeType.DATAMATRIX,
+            file=bytearray(image_bytes),
+        )
 
         barcodes: List[Dict[str, Optional[str]]] = []
         if response is None:
             return barcodes
 
         for item in getattr(response, "barcodes", []) or []:
-            value = getattr(item, "barcode_value", None) or getattr(item, "barcode_text", None)
-            type_name = getattr(item, "type", None) or getattr(item, "type_name", None)
+            value = getattr(item, "barcode_value", None)
+            type_name = getattr(item, "type", None)
             confidence = getattr(item, "confidence", None)
             barcodes.append(
                 {
@@ -118,7 +118,7 @@ class StatsManager:
             stats.first_name = first_name or stats.first_name
             stats.last_name = last_name or stats.last_name
             stats.request_count += 1
-            snapshot = self.snapshot()
+            snapshot = self._snapshot_locked()
 
         for listener in list(self._listeners):
             try:
@@ -128,10 +128,13 @@ class StatsManager:
 
     def snapshot(self) -> Dict[int, UserStats]:
         with self._lock:
-            return {user_id: UserStats(**vars(data)) for user_id, data in self._stats.items()}
+            return self._snapshot_locked()
 
     def add_listener(self, listener) -> None:
         self._listeners.append(listener)
+
+    def _snapshot_locked(self) -> Dict[int, UserStats]:
+        return {user_id: UserStats(**vars(data)) for user_id, data in self._stats.items()}
 
 
 class BotRunner(threading.Thread):
