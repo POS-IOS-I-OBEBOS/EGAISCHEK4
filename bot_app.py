@@ -40,6 +40,19 @@ def _resolve_recognize_api() -> type:
         "aspose_barcode_cloud.apis.recognize_api",
     )
     for module_name in module_candidates:
+        try:
+            module = importlib.import_module(module_name)
+        except ModuleNotFoundError as exc:
+            missing_root = exc.name or ""
+            if module_name.startswith(missing_root):
+                continue
+            raise
+        recognize_api = getattr(module, "RecognizeApi", None)
+        if recognize_api is not None:
+            return recognize_api
+    raise ModuleNotFoundError(
+        "Unable to locate Aspose Barcode Cloud RecognizeApi module in any known package layout"
+    )
         if importlib.util.find_spec(module_name):
             module = importlib.import_module(module_name)
             return getattr(module, "RecognizeApi")
