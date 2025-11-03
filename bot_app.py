@@ -11,13 +11,11 @@ from typing import Dict, List, Optional
 import tkinter as tk
 from tkinter import messagebox, scrolledtext, ttk
 
-from aspose_barcode_cloud import (  # type: ignore
-    ApiClient,
-    ApiException,
-    BarcodeApi,
-    Configuration,
-    DecodeBarcodeOnlineRequest,
-)
+from aspose_barcode_cloud.api.barcode_api import BarcodeApi  # type: ignore
+from aspose_barcode_cloud.api_client import ApiClient  # type: ignore
+from aspose_barcode_cloud.configuration import Configuration  # type: ignore
+from aspose_barcode_cloud.models.requests import DecodeBarcodeOnlineRequest  # type: ignore
+from aspose_barcode_cloud.rest import ApiException  # type: ignore
 from telegram import Update
 from telegram.constants import ChatAction
 from telegram.ext import (
