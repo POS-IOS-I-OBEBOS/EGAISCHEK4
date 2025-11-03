@@ -11,7 +11,7 @@ from typing import Dict, List, Optional
 import tkinter as tk
 from tkinter import messagebox, scrolledtext, ttk
 
-from aspose_barcode_cloud.api.barcode_api import BarcodeApi  # type: ignore
+from aspose_barcode_cloud.apis.barcode_api import BarcodeApi  # type: ignore
 from aspose_barcode_cloud.api_client import ApiClient  # type: ignore
 from aspose_barcode_cloud.configuration import Configuration  # type: ignore
 from aspose_barcode_cloud.models.requests import DecodeBarcodeOnlineRequest  # type: ignore
