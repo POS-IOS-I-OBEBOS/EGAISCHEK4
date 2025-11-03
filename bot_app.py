@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import asyncio
+import importlib
 import logging
 import threading
 from dataclasses import dataclass
@@ -29,6 +30,23 @@ from telegram.ext import (
 )
 
 LOGGER = logging.getLogger("datamatrix_bot")
+
+
+def _resolve_recognize_api() -> type:
+    """Locate the Aspose SDK RecognizeApi implementation across package layouts."""
+
+    module_candidates = (
+        "aspose_barcode_cloud.api.recognize_api",
+        "aspose_barcode_cloud.apis.recognize_api",
+    )
+    for module_name in module_candidates:
+        if importlib.util.find_spec(module_name):
+            module = importlib.import_module(module_name)
+            return getattr(module, "RecognizeApi")
+    raise ModuleNotFoundError("Unable to locate Aspose Barcode Cloud RecognizeApi module")
+
+
+RecognizeApi = _resolve_recognize_api()
 
 
 class TkinterLogHandler(logging.Handler):
