@@ -11,6 +11,7 @@ import tkinter as tk
 from tkinter import messagebox, scrolledtext, ttk
 
 from aspose_barcode_cloud.api.recognize_api import RecognizeApi  # type: ignore
+from aspose_barcode_cloud.apis.barcode_api import BarcodeApi  # type: ignore
 from aspose_barcode_cloud.api_client import ApiClient  # type: ignore
 from aspose_barcode_cloud.configuration import Configuration  # type: ignore
 from aspose_barcode_cloud.models.decode_barcode_type import DecodeBarcodeType  # type: ignore
