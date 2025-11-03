@@ -12,6 +12,8 @@ from typing import Dict, List, Optional
 import tkinter as tk
 from tkinter import messagebox, scrolledtext, ttk
 
+from aspose_barcode_cloud.api.recognize_api import RecognizeApi  # type: ignore
+from aspose_barcode_cloud.apis.barcode_api import BarcodeApi  # type: ignore
 from aspose_barcode_cloud.api_client import ApiClient  # type: ignore
 from aspose_barcode_cloud.configuration import Configuration  # type: ignore
 from aspose_barcode_cloud.models.decode_barcode_type import DecodeBarcodeType  # type: ignore
@@ -43,12 +45,23 @@ def _resolve_recognize_api() -> type:
             continue
 
         module = importlib.import_module(module_name)
+        try:
+            module = importlib.import_module(module_name)
+        except ModuleNotFoundError as exc:
+            missing_root = exc.name or ""
+            if module_name.startswith(missing_root):
+                continue
+            raise
         recognize_api = getattr(module, "RecognizeApi", None)
         if recognize_api is not None:
             return recognize_api
     raise ModuleNotFoundError(
         "Unable to locate Aspose Barcode Cloud RecognizeApi module in any known package layout"
     )
+        if importlib.util.find_spec(module_name):
+            module = importlib.import_module(module_name)
+            return getattr(module, "RecognizeApi")
+    raise ModuleNotFoundError("Unable to locate Aspose Barcode Cloud RecognizeApi module")
 
 
 RecognizeApi = _resolve_recognize_api()
